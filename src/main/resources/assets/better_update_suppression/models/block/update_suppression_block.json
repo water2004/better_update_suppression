@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "better_update_suppression:block/update_suppression_block"
+  }
+}

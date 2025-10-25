@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "better_update_suppression",
+  "version": "${version}",
+  "name": "BetterUpdateSuppression",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/better_update_suppression/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-datagen": [
+      "org.edtp.better_update_suppression.client.Better_update_suppressionDataGenerator"
+    ],
+    "client": [
+      "org.edtp.better_update_suppression.client.Better_update_suppressionClient"
+    ],
+    "main": [
+      "org.edtp.better_update_suppression.Better_update_suppression"
+    ]
+  },
+  "mixins": [
+    "better_update_suppression.mixins.json",
+    {
+      "config": "better_update_suppression.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}

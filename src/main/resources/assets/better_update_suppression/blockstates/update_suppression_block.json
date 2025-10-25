@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "actived=false": { "model": "better_update_suppression:block/update_suppression_block" },
+    "actived=true": { "model": "better_update_suppression:block/update_suppression_block_active" }
+  }
+}
