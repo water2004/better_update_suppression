@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "RRR",
+    "ROR",
+    "RRR"
+  ],
+  "key": {
+    "R": "minecraft:redstone",
+    "O": "minecraft:observer"
+  },
+  "result": {
+    "id": "better_update_suppression:update_suppression_block",
+    "count": 1
+  }
+}

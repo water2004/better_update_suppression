@@ -8,6 +8,8 @@
     ```
     /give @s better_update_suppression:update_suppression_block 64
     ```
+   或使用侦测器\*1和红石粉\*8合成
+   ![](img/-1.png)
 3. 在更新抑制前搭好结构（以切门为例）
    ![](img/0.png)
 4. 将`更新抑制方块`紧贴放置需要抑制的方块旁边
@@ -30,4 +32,4 @@
     - 不要把两个`更新抑制方块`紧贴放置，即使没有激活
     - 慢慢操作，不要急躁
 
-依赖模组：fabric，fabric-api
+依赖模组：fabric-api
