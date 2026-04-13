@@ -29,7 +29,7 @@ public class UpdateSuppressionBlockFinal {
         final Block block = Registry.register(BuiltInRegistries.BLOCK, registryKey, factory.apply(settings));
 
         final ResourceKey<Item> itemKey = ResourceKey.create(Registries.ITEM, identifier);
-        Registry.register(BuiltInRegistries.ITEM, itemKey, new BlockItem(block, new Item.Properties().setId(itemKey)));
+        Registry.register(BuiltInRegistries.ITEM, itemKey, new BlockItem(block, new Item.Properties().useBlockDescriptionPrefix().setId(itemKey)));
 
         return block;
     }
