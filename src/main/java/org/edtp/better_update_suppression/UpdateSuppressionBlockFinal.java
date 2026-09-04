@@ -1,12 +1,13 @@
 package org.edtp.better_update_suppression;
 
+import eu.pb4.polymer.core.api.item.PolymerCreativeModeTabUtils;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -29,7 +30,9 @@ public class UpdateSuppressionBlockFinal {
         final Block block = Registry.register(BuiltInRegistries.BLOCK, registryKey, factory.apply(settings));
 
         final ResourceKey<Item> itemKey = ResourceKey.create(Registries.ITEM, identifier);
-        Registry.register(BuiltInRegistries.ITEM, itemKey, new BlockItem(block, new Item.Properties().useBlockDescriptionPrefix().setId(itemKey)));
+        Registry.register(BuiltInRegistries.ITEM, itemKey,
+                new UpdateSuppressionBlockItem(block,
+                        new Item.Properties().useBlockDescriptionPrefix().setId(itemKey)));
 
         return block;
     }
@@ -37,6 +40,20 @@ public class UpdateSuppressionBlockFinal {
     public static void init() {
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.REDSTONE_BLOCKS).register(output -> {
             output.accept(UPDATE_SUPPRESSION_BLOCK);
+        });
+        PolymerCreativeModeTabUtils.invalidateCache();
+
+        PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, blockEntity) -> {
+            if (!state.is(UPDATE_SUPPRESSION_BLOCK)) {
+                return true;
+            }
+
+            if (ClientModCompatibility.canUseProtectedContent(player)) {
+                return true;
+            }
+
+            ClientModCompatibility.sendClientRequiredMessage(player);
+            return false;
         });
     }
 }

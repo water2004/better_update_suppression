@@ -2,8 +2,7 @@
 
 ## 如何使用？
 
-1. 下载`BetterUpdateSuppression-1.0-SNAPSHOT.jar
-`，放入mods文件夹
+1. 下载`better_update_suppression-<版本>.jar`，放入 mods 文件夹
 2. 输入指令给予自己更新抑制方块
     ```
     /give @s better_update_suppression:update_suppression_block 64
@@ -32,4 +31,10 @@
     - 不要把两个`更新抑制方块`紧贴放置，即使没有激活
     - 慢慢操作，不要急躁
 
-依赖模组：fabric-api
+## 客户端兼容
+
+- 服务端必须安装本模组和 Fabric API。
+- 客户端可以不安装本模组，并且不需要安装 Polymer；此时更新抑制方块显示为基岩，且不能交互、放置或破坏。
+- 安装本模组的客户端可以看到真实模型并正常操作；Polymer 已内嵌在本模组 JAR 中，无需单独下载。
+
+依赖模组：Fabric API（Polymer Core 已内嵌）

@@ -1,0 +1,101 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish tagged release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out tagged commit
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "25"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Validate release tag and notes
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          version="$(sed -n 's/^mod_version=//p' gradle.properties | tr -d '\r')"
+          if [[ -z "$version" ]]; then
+            echo "mod_version is missing from gradle.properties" >&2
+            exit 1
+          fi
+
+          if [[ "$GITHUB_REF_NAME" != "$version" ]]; then
+            echo "Tag '$GITHUB_REF_NAME' must exactly match mod_version '$version'." >&2
+            exit 1
+          fi
+
+          git fetch origin +refs/heads/master:refs/remotes/origin/master --no-tags
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/master; then
+            echo "Tagged commit must be contained in origin/master." >&2
+            exit 1
+          fi
+
+          if [[ ! -s RELEASE.md ]] || ! grep -Fq "$version" RELEASE.md; then
+            echo "RELEASE.md must be non-empty and mention version '$version'." >&2
+            exit 1
+          fi
+
+          echo "MOD_VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Build and verify
+        shell: bash
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon clean build
+
+      - name: Select release artifact
+        id: artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t artifacts < <(find build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' -print)
+          if [[ "${#artifacts[@]}" -ne 1 ]]; then
+            echo "Expected exactly one release JAR, found ${#artifacts[@]}." >&2
+            printf '%s\n' "${artifacts[@]}" >&2
+            exit 1
+          fi
+
+          artifact="${artifacts[0]}"
+          artifact_name="$(basename "$artifact")"
+          (cd build/libs && sha256sum "$artifact_name" > SHA256SUMS)
+
+          echo "artifact=$artifact" >> "$GITHUB_OUTPUT"
+          echo "checksum=build/libs/SHA256SUMS" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "${{ steps.artifact.outputs.artifact }}" \
+            "${{ steps.artifact.outputs.checksum }}" \
+            --verify-tag \
+            --title "v${MOD_VERSION}" \
+            --notes-file RELEASE.md

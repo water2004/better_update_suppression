@@ -6,6 +6,7 @@ public class Better_update_suppression implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ClientModCompatibility.registerProtocol();
         UpdateSuppressionBlockFinal.init();
     }
 }
